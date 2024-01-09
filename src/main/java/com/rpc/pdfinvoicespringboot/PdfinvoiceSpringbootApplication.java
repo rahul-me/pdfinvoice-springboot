@@ -1,10 +1,22 @@
 package com.rpc.pdfinvoicespringboot;
 
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+
+import javax.sql.DataSource;
 
 @SpringBootApplication
 public class PdfinvoiceSpringbootApplication {
+
+	@Bean
+	public InitializingBean runner(DataSource dataSource) {
+		return () -> {
+			System.out.println("datasource");
+			System.out.println(dataSource);
+		};
+	}
 
 	public static void main(String[] args) {
 		SpringApplication.run(PdfinvoiceSpringbootApplication.class, args);
