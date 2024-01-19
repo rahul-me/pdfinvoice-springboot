@@ -60,7 +60,7 @@ after that we need to specify Accept parameter in header part of our request
 <!--		Do not confuse with spring-data -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId> <!---->
-			<artifactId>spring-boot-starter-jdbc</artifactId>
+			<artifactId>spring-boot-starter-data-jdbc</artifactId>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->

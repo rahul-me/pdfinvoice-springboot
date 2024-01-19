@@ -2,6 +2,7 @@ package com.rpc.pdfinvoicespringboot.service;
 
 import com.rpc.pdfinvoicespringboot.model.Invoice;
 import com.rpc.pdfinvoicespringboot.model.User;
+import com.rpc.pdfinvoicespringboot.repository.InvoiceRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,23 +21,21 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Service
 public class InvoiceService {
 
-    private final JdbcTemplate jdbcTemplate;
+//    private final JdbcTemplate jdbcTemplate;
+
+    private final InvoiceRepository invoiceRepository;
     private final UserService userService;
     private final String cdnUrl;
 
     private final RowMapper<Invoice> invoiceRowMapper = (rs, no) -> {
-        return Invoice.builder()
-                .id(rs.getInt("id"))
-                .userId(rs.getString("userid"))
-                .pdfUrl(rs.getString("pdfurl"))
-                .amount(rs.getInt("amount"))
-                .build();
+        return Invoice.builder().id(rs.getInt("id")).userId(rs.getString("userid")).pdfUrl(rs.getString("pdfurl")).amount(rs.getInt("amount")).build();
     };
 
-    public InvoiceService(UserService userService, @Value("${cdn.url}") String cdnUrl, JdbcTemplate jdbcTemplate) {
+    public InvoiceService(UserService userService, @Value("${cdn.url}") String cdnUrl, JdbcTemplate jdbcTemplate, InvoiceRepository invoiceRepository) {
         this.userService = userService;
         this.cdnUrl = cdnUrl;
-        this.jdbcTemplate = jdbcTemplate;
+//        this.jdbcTemplate = jdbcTemplate;
+        this.invoiceRepository = invoiceRepository;
     }
 
     @PostConstruct
@@ -51,31 +50,41 @@ public class InvoiceService {
         // TODO actual deletion of PDFs
     }
 
-    @Transactional
-    public List<Invoice> findAll() {
+//    @Transactional
+//    public List<Invoice> findAll() {
+//
+//        List<Invoice> invoices = jdbcTemplate.query("select * from invoice", invoiceRowMapper);
+//        return invoices;
+//    }
 
-        List<Invoice> invoices = jdbcTemplate.query("select * from invoice", invoiceRowMapper);
-        return invoices;
+    @Transactional
+    public Iterable<Invoice> findAll() {
+        return invoiceRepository.findAll();
     }
+
+//    @Transactional
+//    public Invoice create(String userId, int amount) {
+//        KeyHolder keyHolder = new GeneratedKeyHolder();
+//        jdbcTemplate.update( con -> {
+//            PreparedStatement ps = con.prepareStatement("insert into invoice (pdfurl, userid, amount) values (?,?,?)", new String[] {"id"});
+//            ps.setString(1, "http://www.africau.edu/images/default/sample.pdf");
+//            ps.setString(2, userId);
+//            ps.setInt(3, amount);
+//            return ps;
+//        }, keyHolder);
+//
+//        var invoice = Invoice.builder()
+//                .id(Objects.requireNonNull(keyHolder.getKey()).intValue())
+//                .userId(userId)
+//                .amount(amount)
+//                .pdfUrl("http://www.africau.edu/images/default/sample.pdf")
+//                .build();
+//
+//        return invoice;
+//    }
 
     @Transactional
     public Invoice create(String userId, int amount) {
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update( con -> {
-            PreparedStatement ps = con.prepareStatement("insert into invoice (pdfurl, userid, amount) values (?,?,?)", new String[] {"id"});
-            ps.setString(1, "http://www.africau.edu/images/default/sample.pdf");
-            ps.setString(2, userId);
-            ps.setInt(3, amount);
-            return ps;
-        }, keyHolder);
-
-        var invoice = Invoice.builder()
-                .id(Objects.requireNonNull(keyHolder.getKey()).intValue())
-                .userId(userId)
-                .amount(amount)
-                .pdfUrl("http://www.africau.edu/images/default/sample.pdf")
-                .build();
-
-        return invoice;
+        return invoiceRepository.save(Invoice.builder().pdfUrl("http://www.pdfurl.com/share/ho.pdf").userId(userId).amount(amount).build());
     }
 }
